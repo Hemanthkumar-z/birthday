@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Happy Birthday Pavani! 🎂</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    <!-- Canvas Confetti Library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: linear-gradient(135deg, #160824, #361040, #160824);
+            color: #fff;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            transition: background 2s ease-in-out;
+            position: relative;
+        }
+
+        body.magical-bg {
+            background: linear-gradient(135deg, #4b1d52, #9d4edd, #ff79c6);
+        }
+
+        /* Glassmorphism Container */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 24px;
+            padding: 2.5rem 1.5rem;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Question Text */
+        .question-text {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .funny-message {
+            font-size: 0.9rem;
+            color: #ff79c6;
+            margin-bottom: 1rem;
+            height: 20px;
+            font-weight: 600;
+        }
+
+        /* Buttons */
+        .btn-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            min-height: 80px;
+        }
+
+        .btn {
+            border: none;
+            border-radius: 12px;
+            padding: 12px 24px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+        }
+
+        .btn-yes {
+            background: linear-gradient(45deg, #FFD700, #FF8C00);
+            color: #1a0b2e;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+        }
+        
+        .btn-yes:active { transform: scale(0.95); }
+
+        .btn-no {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        /* Animations */
+        @keyframes bounce {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            50% { transform: translateX(10px); }
+            75% { transform: translateX(-10px); }
+        }
+
+        .shake {
+            animation: bounce 0.4s ease;
+        }
+
+        @keyframes checkmarkPop {
+            0% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1.5); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .check-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.8);
+            border-radius: 24px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 5rem;
+            color: #50fa7b;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        
+        .check-overlay.active {
+            opacity: 1;
+        }
+
+        .check-overlay.active span {
+            animation: checkmarkPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        /* Screens Management */
+        #question-screen, #lotus-screen, #final-screen {
+            display: none;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0; left: 0;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+        }
+
+        #question-screen.active, #lotus-screen.active, #final-screen.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        /* Lotus Animation */
+        .lotus-container {
+            position: relative;
+            width: 250px;
+            height: 250px;
+            cursor: pointer;
+            margin-bottom: 2rem;
+            z-index: 20;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .lotus-instruction {
+            font-size: 1.5rem;
+            color: #FFD700;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+            animation: pulseText 1.5s infinite;
+            font-weight: 600;
+            z-index: 20;
+        }
+
+        /* Pure CSS Lotus Petals */
+        .petal {
+            position: absolute;
+            bottom: 20%;
+            width: 60px;
+            height: 120px;
+            background: linear-gradient(to top, #ff79c6, #f1fa8c);
+            border-radius: 50% 50% 0 50%;
+            transform-origin: bottom center;
+            box-shadow: 0 0 15px rgba(255, 121, 198, 0.5);
+            transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1), background 1s, opacity 1s;
+            opacity: 0.8;
+            transform: rotate(45deg) scale(0.4); /* Petal Shape Fix */
+        }
+        
+        .petal-wrapper {
+            position: absolute;
+            bottom: 20px;
+            width: 10px;
+            height: 10px;
+            display: flex;
+            justify-content: center;
+            transform-origin: bottom center;
+            transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Initial Closed Bud States */
+        .pw-1 { transform: rotate(0deg) scale(0.6); z-index: 7; }
+        .pw-2 { transform: rotate(-5deg) scale(0.5); z-index: 6; }
+        .pw-3 { transform: rotate(5deg) scale(0.5); z-index: 6; }
+        .pw-4 { transform: rotate(-10deg) scale(0.4); z-index: 5; }
+        .pw-5 { transform: rotate(10deg) scale(0.4); z-index: 5; }
+        .pw-6 { transform: rotate(-15deg) scale(0.3); z-index: 4; }
+        .pw-7 { transform: rotate(15deg) scale(0.3); z-index: 4; }
+
+        @keyframes pulseText {
+            0%, 100% { opacity: 0.7; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.05); }
+        }
+
+        /* Final Screen */
+        .final-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            background: linear-gradient(45deg, #FFD700, #ff79c6, #8be9fd);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+            text-shadow: 0px 4px 15px rgba(255, 215, 0, 0.3);
+            text-align: center;
+        }
+
+        .final-subtitle {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: #f8f8f2;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            text-align: center;
+        }
+
+        /* Floating Petals */
+        .floating-petal {
+            position: absolute;
+            background: #ff79c6;
+            border-radius: 50% 50% 0 50%;
+            opacity: 0.6;
+            pointer-events: none;
+            z-index: 1;
+            animation: fall linear infinite;
+        }
+
+        @keyframes fall {
+            0% { transform: translateY(-10vh) rotate(0deg) scale(0.5); opacity: 0; }
+            10% { opacity: 0.6; }
+            90% { opacity: 0.6; }
+            100% { transform: translateY(110vh) rotate(360deg) scale(0.5); opacity: 0; }
+        }
+
+        /* Music Toggle */
+        #music-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2rem;
+            cursor: pointer;
+            z-index: 100;
+            color: white;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        
+        .sparkle {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: sparkleAnim 1s ease-out forwards;
+        }
+
+        @keyframes sparkleAnim {
+            0% { transform: scale(0); opacity: 1; }
+            100% { transform: scale(2) translateY(-20px); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Background Music (Placeholder royalty free magical loop) -->
+    <audio id="bg-music" loop>
+        <source src="https://cdn.pixabay.com/download/audio/2022/03/10/audio_5b89ebc10b.mp3?filename=magical-fairy-tale-112374.mp3" type="audio/mpeg">
+    </audio>
+
+    <div id="music-toggle" onclick="toggleMusic()">🔇</div>
+
+    <!-- 1. QUESTION SCREEN -->
+    <div id="question-screen" class="active">
+        <div class="glass-card" id="q-card">
+            <div class="funny-message" id="funny-text"></div>
+            <div class="question-text" id="question-text">Loading...</div>
+            <div class="btn-container">
+                <button class="btn btn-yes" id="btn-yes" onclick="handleYes()">YES</button>
+                <button class="btn btn-no" id="btn-no" onclick="handleNo()">NO</button>
+            </div>
+            <div class="check-overlay" id="check-overlay">
+                <span>✅</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. LOTUS SCREEN -->
+    <div id="lotus-screen">
+        <div class="lotus-container" id="lotus" onclick="tapLotus(event)">
+            <!-- CSS Petals generated via JS for cleaner HTML -->
+        </div>
+        <div class="lotus-instruction" id="lotus-text">Tap the Lotus Bud 🌸</div>
+    </div>
+
+    <!-- 3. FINAL SCREEN -->
+    <div id="final-screen">
+        <div class="glass-card" style="padding: 3rem 2rem;">
+            <div class="final-title">✨ HAPPY BIRTHDAY PAVANI ✨</div>
+            <div class="final-subtitle">
+                May your day be filled with happiness, laughter, victories, and lots of diamonds! 🎂🎉💎
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data
+        const questions = [
+            "Have you ever started a match confidently and died in the first minute?",
+            "Are you secretly the biggest noob in the guild? 🤣",
+            "Have you ever said 'rush' and then stayed behind?",
+            "Will you distribute diamonds to all guild members today?",
+            "Have you ever stolen a teammate's loot?",
+            "Have you ever used a teammate as bait?"
+        ];
+
+        const noMessages = [
+            "Are you sure? 🤨",
+            "Think again 😂",
+            "The guild knows the truth 😏",
+            "Nice try 🤣",
+            "Stop lying to yourself! 🤥",
+            "We have replays! 🎥",
+            "Just click YES already... 🙄"
+        ];
+
+        // State Variables
+        let currentQuestion = 0;
+        let noClicks = 0;
+        let yesScale = 1;
+        let noScale = 1;
+        let lotusTaps = 0;
+        let isMusicPlaying = false;
+
+        // DOM Elements
+        const questionText = document.getElementById("question-text");
+        const funnyText = document.getElementById("funny-text");
+        const btnYes = document.getElementById("btn-yes");
+        const btnNo = document.getElementById("btn-no");
+        const qCard = document.getElementById("q-card");
+        const checkOverlay = document.getElementById("check-overlay");
+        
+        // Initialize First Question
+        questionText.innerText = questions[currentQuestion];
+
+        // Music Toggle Function
+        function toggleMusic() {
+            const audio = document.getElementById('bg-music');
+            const btn = document.getElementById('music-toggle');
+            if (isMusicPlaying) {
+                audio.pause();
+                btn.innerText = "🔇";
+            } else {
+                audio.play().catch(e => console.log("Audio play blocked by browser"));
+                btn.innerText = "🔊";
+            }
+            isMusicPlaying = !isMusicPlaying;
+        }
+
+        // Logic: NO Click
+        function handleNo() {
+            noClicks++;
+            
+            // Animation
+            qCard.classList.remove("shake");
+            void qCard.offsetWidth; // Trigger reflow
+            qCard.classList.add("shake");
+
+            // Shrink NO, Grow YES
+            noScale *= 0.8;
+            yesScale += 0.15;
+            
+            btnNo.style.transform = `scale(${noScale})`;
+            btnYes.style.transform = `scale(${yesScale})`;
+
+            // Funny Messages
+            const randomMsg = noMessages[Math.floor(Math.random() * noMessages.length)];
+            funnyText.innerText = randomMsg;
+
+            // Hide NO button if clicked too much
+            if (noClicks >= 6) {
+                btnNo.style.display = "none";
+                funnyText.innerText = "No escape now! 😆";
+            }
+        }
+
+        // Logic: YES Click
+        function handleYes() {
+            // Show Green Check
+            checkOverlay.classList.add("active");
+            
+            setTimeout(() => {
+                checkOverlay.classList.remove("active");
+                currentQuestion++;
+                
+                if (currentQuestion < questions.length) {
+                    // Next Question setup
+                    questionText.innerText = questions[currentQuestion];
+                    // Reset buttons
+                    noClicks = 0;
+                    yesScale = 1;
+                    noScale = 1;
+                    btnYes.style.transform = "scale(1)";
+                    btnNo.style.transform = "scale(1)";
+                    btnNo.style.display = "block";
+                    funnyText.innerText = "";
+                } else {
+                    // Start Completion Sequence
+                    startCompletionSequence();
+                }
+            }, 800); // Wait for checkmark animation
+        }
+
+        function startCompletionSequence() {
+            const qScreen = document.getElementById("question-screen");
+            const lotusScreen = document.getElementById("lotus-screen");
+            
+            qScreen.classList.remove("active");
+            setTimeout(() => {
+                qScreen.style.display = "none";
+                lotusScreen.style.display = "flex";
+                // Slight delay before fading in
+                setTimeout(() => {
+                    lotusScreen.classList.add("active");
+                    createLotusPetals();
+                }, 50);
+            }, 1000);
+        }
+
+        function createLotusPetals() {
+            const lotus = document.getElementById("lotus");
+            // Create 7 wrappers with petals
+            for(let i=1; i<=7; i++) {
+                const wrapper = document.createElement("div");
+                wrapper.className = `petal-wrapper pw-${i}`;
+                wrapper.id = `pw-${i}`;
+                
+                const petal = document.createElement("div");
+                petal.className = "petal";
+                
+                wrapper.appendChild(petal);
+                lotus.appendChild(wrapper);
+            }
+        }
+
+        function tapLotus(event) {
+            lotusTaps++;
+            createSparkles(event);
+
+            const pw1 = document.getElementById("pw-1"); // Center
+            const pw2 = document.getElementById("pw-2"); // L1
+            const pw3 = document.getElementById("pw-3"); // R1
+            const pw4 = document.getElementById("pw-4"); // L2
+            const pw5 = document.getElementById("pw-5"); // R2
+            const pw6 = document.getElementById("pw-6"); // L3
+            const pw7 = document.getElementById("pw-7"); // R3
+
+            if (lotusTaps === 1) {
+                // Bud slightly opens
+                pw2.style.transform = "rotate(-20deg) scale(0.6)";
+                pw3.style.transform = "rotate(20deg) scale(0.6)";
+                pw1.style.transform = "rotate(0deg) scale(0.7)";
+            } else if (lotusTaps === 2) {
+                // More petals
+                pw4.style.transform = "rotate(-40deg) scale(0.7)";
+                pw5.style.transform = "rotate(40deg) scale(0.7)";
+                pw2.style.transform = "rotate(-25deg) scale(0.8)";
+                pw3.style.transform = "rotate(25deg) scale(0.8)";
+            } else if (lotusTaps === 3) {
+                // Half open
+                pw6.style.transform = "rotate(-60deg) scale(0.7)";
+                pw7.style.transform = "rotate(60deg) scale(0.7)";
+                pw4.style.transform = "rotate(-45deg) scale(0.8)";
+                pw5.style.transform = "rotate(45deg) scale(0.8)";
+                pw1.style.transform = "rotate(0deg) scale(0.9)";
+            } else if (lotusTaps === 4) {
+                // Almost fully open
+                pw6.style.transform = "rotate(-75deg) scale(0.8)";
+                pw7.style.transform = "rotate(75deg) scale(0.8)";
+                pw2.style.transform = "rotate(-30deg) scale(1)";
+                pw3.style.transform = "rotate(30deg) scale(1)";
+            } else if (lotusTaps === 5) {
+                // Fully blooms
+                pw6.style.transform = "rotate(-90deg) scale(0.9)";
+                pw7.style.transform = "rotate(90deg) scale(0.9)";
+                pw4.style.transform = "rotate(-60deg) scale(1)";
+                pw5.style.transform = "rotate(60deg) scale(1)";
+                pw1.style.transform = "rotate(0deg) scale(1.1)";
+
+                document.body.classList.add("magical-bg");
+                document.getElementById("lotus-text").innerText = "✨ Magic Unlocked! ✨";
+
+                setTimeout(() => {
+                    revealFinalMessage();
+                }, 1500);
+            }
+        }
+
+        function createSparkles(e) {
+            const lotus = document.getElementById("lotus");
+            const rect = lotus.getBoundingClientRect();
+            const offsetX = e ? e.clientX - rect.left : rect.width / 2;
+            const offsetY = e ? e.clientY - rect.top : rect.height / 2;
+
+            for (let i = 0; i < 5; i++) {
+                const sparkle = document.createElement("div");
+                sparkle.className = "sparkle";
+                sparkle.style.width = Math.random() * 8 + 4 + "px";
+                sparkle.style.height = sparkle.style.width;
+                sparkle.style.left = `${Math.min(Math.max(offsetX + (Math.random() - 0.5) * 80, 0), rect.width)}px`;
+                sparkle.style.top = `${Math.min(Math.max(offsetY + (Math.random() - 0.5) * 80, 0), rect.height)}px`;
+                lotus.appendChild(sparkle);
+
+                setTimeout(() => sparkle.remove(), 1000);
+            }
+        }
+
+        function revealFinalMessage() {
+            const lotusScreen = document.getElementById("lotus-screen");
+            const finalScreen = document.getElementById("final-screen");
+
+            lotusScreen.classList.remove("active");
+            setTimeout(() => {
+                lotusScreen.style.display = "none";
+                finalScreen.style.display = "flex";
+
+                setTimeout(() => {
+                    finalScreen.classList.add("active");
+                    fireConfetti();
+                    startFloatingPetals();
+                }, 5);
+            }, 300);
+        }
+
+        function fireConfetti() {
+            if (typeof confetti !== "function") return;
+            confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.3 }
+            });
+            confetti({
+                particleCount: 60,
+                spread: 90,
+                origin: { x: 0.25, y: 0.2 }
+            });
+            confetti({
+                particleCount: 60,
+                spread: 90,
+                origin: { x: 0.75, y: 0.2 }
+            });
+        }
+
+        function startFloatingPetals() {
+            const body = document.body;
+            for (let i = 0; i < 6; i++) {
+                const petal = document.createElement("div");
+                petal.className = "floating-petal";
+                petal.style.width = `${Math.random() * 18 + 12}px`;
+                petal.style.height = `${Math.random() * 20 + 14}px`;
+                petal.style.left = `${Math.random() * 90 + 5}%`;
+                petal.style.animationDuration = `${Math.random() * 5 + 6}s`;
+                petal.style.animationDelay = `${Math.random() * 3}s`;
+                petal.style.transform = `rotate(${Math.random() * 360}deg) scale(${Math.random() * 0.7 + 0.6})`;
+                body.appendChild(petal);
+
+                setTimeout(() => petal.remove(), 12000);
+            }
+        }
+    </script>
+</body>
+</html>
