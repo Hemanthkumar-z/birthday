@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Happy Birthday Pavani! 🎂</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    <!-- Canvas Confetti Library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+</head>
+<body>
+
+    <!-- Background Music (Placeholder royalty free magical loop) -->
+    <audio id="bg-music" loop>
+        <source src="https://cdn.pixabay.com/download/audio/2022/03/10/audio_5b89ebc10b.mp3?filename=magical-fairy-tale-112374.mp3" type="audio/mpeg">
+    </audio>
+
+    <div id="music-toggle" onclick="toggleMusic()">🔇</div>
+
+    <!-- 1. QUESTION SCREEN -->
+    <div id="question-screen" class="active">
+        <div class="glass-card" id="q-card">
+            <div class="funny-message" id="funny-text"></div>
+            <div class="question-text" id="question-text">Loading...</div>
+            <div class="btn-container">
+                <button class="btn btn-yes" id="btn-yes" onclick="handleYes()">YES</button>
+                <button class="btn btn-no" id="btn-no" onclick="handleNo()">NO</button>
+            </div>
+            <div class="check-overlay" id="check-overlay">
+                <span>✅</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. LOTUS SCREEN -->
+    <div id="lotus-screen">
+        <div class="lotus-container" id="lotus" onclick="tapLotus(event)">
+            <!-- CSS Petals generated via JS for cleaner HTML -->
+        </div>
+        <div class="lotus-instruction" id="lotus-text">Tap the Lotus Bud 🌸</div>
+    </div>
+
+    <!-- 3. FINAL SCREEN -->
+    <div id="final-screen">
+        <div class="glass-card" style="padding: 3rem 2rem;">
+            <div class="final-title">✨ HAPPY BIRTHDAY PAVANI ✨</div>
+            <div class="final-subtitle">
+                May your day be filled with happiness, laughter, victories, and lots of diamonds! 🎂🎉💎
+            </div>
+        </div>
+    </div>
+
+ 
+</body>
+</html>
